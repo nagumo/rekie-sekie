@@ -1,19 +1,33 @@
 name: release-build
 
-# release-pleaseがGitHub Releaseを作成したタイミングで、.appバンドルを
-# ビルド→Developer ID署名→notarize→staple→zip化してアセット添付する。
+# GitHub Release作成時に.appバンドルをビルド→Developer ID署名→notarize→
+# staple→zip化してアセット添付する。
+# release-pleaseはGITHUB_TOKENでリリースを作るため`release`イベントでは発火せず、
+# release-please.ymlからworkflow_dispatch（tag入力）で起動される。
+# `release`トリガーは手動でリリースを作った場合のための保険として残す。
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "ビルド対象のリリースタグ（例: v0.0.2）"
+        required: true
+        type: string
 
 permissions:
   contents: write
+
+env:
+  RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
 
 jobs:
   build:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
 
       - name: Show Swift version
         run: swift --version
@@ -37,7 +51,7 @@ jobs:
           rm -f "$P12_PATH"
 
       - name: Build unsigned .app
-        run: SKIP_ZIP=1 scripts/build-app.sh "${GITHUB_REF_NAME#v}"
+        run: SKIP_ZIP=1 scripts/build-app.sh "${RELEASE_TAG#v}"
 
       - name: Code sign
         run: |
@@ -85,14 +99,14 @@ jobs:
 
       - name: Zip stapled app
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${RELEASE_TAG#v}"
           rm -f dist/*.zip
           ditto -c -k --sequesterRsrc --keepParent dist/RekieSekie.app "dist/RekieSekie-v${VERSION}.zip"
 
       - name: Upload release asset
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${GITHUB_REF_NAME}" dist/*.zip --clobber
+        run: gh release upload "${RELEASE_TAG}" dist/*.zip --clobber
 
       - name: Update Sparkle appcast
         env:
@@ -113,7 +127,7 @@ jobs:
 
           echo -n "$SPARKLE_PRIVATE_KEY" | "$RUNNER_TEMP/sparkle-tools/bin/generate_appcast" \
             --ed-key-file - \
-            --download-url-prefix "https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/" \
+            --download-url-prefix "https://github.com/${{ github.repository }}/releases/download/${RELEASE_TAG}/" \
             "$ARCHIVES_DIR"
 
           cp "$ARCHIVES_DIR/appcast.xml" docs/appcast.xml
@@ -126,7 +140,7 @@ jobs:
           git checkout -B master origin/master
           git add docs/appcast.xml
           if ! git diff --cached --quiet; then
-            git commit -m "chore: update Sparkle appcast for ${GITHUB_REF_NAME}"
+            git commit -m "chore: update Sparkle appcast for ${RELEASE_TAG}"
             git push origin master
           fi
 
