@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>rekie-sekie Changelog</title>
+        <link>https://raw.githubusercontent.com/nagumo/rekie-sekie/master/docs/appcast.xml</link>
+        <description>rekie-sekieの自動アップデート用フィード。release-build.ymlがリリースのたびに書き換える。</description>
+        <language>ja</language>
+    </channel>
+</rss>

@@ -1,0 +1,8 @@
+.build/
+.swiftpm/
+xcuserdata/
+DerivedData/
+*.xcodeproj/project.xcworkspace/
+.vscode/
+dist/
+.claude/settings.local.json

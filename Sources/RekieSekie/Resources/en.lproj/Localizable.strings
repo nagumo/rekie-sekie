@@ -1,0 +1,49 @@
+/* ContentView */
+"履歴はまだありません" = "No history yet";
+"検索" = "Search";
+"見つかりませんでした" = "No results";
+
+/* SettingsView: header / tabs */
+"設定" = "Settings";
+"一般" = "General";
+"履歴" = "History";
+"プライバシー" = "Privacy";
+
+/* SettingsView: general tab */
+"ポップオーバーを開く:" = "Open popover:";
+"スニペット一覧を開く:" = "Open snippets:";
+"ログイン時に起動" = "Launch at Login";
+"言語:" = "Language:";
+"システム設定に従う" = "Follow System Setting";
+"メニューバーアイコン:" = "Menu Bar Icon:";
+"スニペット" = "Snippets";
+
+/* SettingsView: history tab */
+"履歴の最大件数:" = "Max history items:";
+"既定: %lld / 最小: %lld / 最大: %lld" = "Default: %lld / Min: %lld / Max: %lld";
+
+/* SettingsView: privacy tab */
+"パスワードマネージャー等のコピーを除外 (ConcealedType)" = "Exclude copies from password managers (ConcealedType)";
+"除外アプリ（このアプリからのコピーは記録しない）" = "Excluded Apps (copies from these apps won't be recorded)";
+"削除" = "Remove";
+"アプリを追加..." = "Add App...";
+
+/* AppDelegate: right-click menu */
+"ショートカット設定..." = "Shortcut Settings...";
+"スニペット管理..." = "Manage Snippets...";
+"アップデートを確認..." = "Check for Updates...";
+"終了" = "Quit";
+
+/* SnippetsView */
+"スニペットがありません" = "No snippets yet";
+
+/* SnippetManagementView */
+"スニペット管理" = "Manage Snippets";
+"すべて" = "All";
+"新規フォルダ" = "New Folder";
+"新規スニペット" = "New Snippet";
+"タイトル" = "Title";
+"本文" = "Content";
+"{date} {time} {datetime} が使えます" = "{date} {time} {datetime} are available";
+"保存" = "Save";
+"無題" = "Untitled";
