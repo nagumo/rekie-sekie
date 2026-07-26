@@ -7,6 +7,19 @@ final class LocalizationManager: ObservableObject {
 
     @Published private(set) var bundle: Bundle
 
+    /// SwiftPMがexecutableターゲット向けに生成する`Bundle.module`は
+    /// 「Bundle.main.bundleURL直下」と「ビルドマシンの絶対パス」しか探さないため、
+    /// .app配布時（リソースはContents/Resources配下）はfatalErrorで起動不能になる。
+    /// そのため先にContents/Resourcesを自前で探し、見つからない場合のみ
+    /// `Bundle.module`（swift run・swift test時に有効）へフォールバックする。
+    static let resourceBundle: Bundle = {
+        if let url = Bundle.main.resourceURL?.appendingPathComponent("RekieSekie_RekieSekie.bundle"),
+           let bundle = Bundle(url: url) {
+            return bundle
+        }
+        return .module
+    }()
+
     private init() {
         bundle = Self.resolveBundle(for: Preferences.appLanguage)
     }
@@ -18,9 +31,9 @@ final class LocalizationManager: ObservableObject {
 
     private static func resolveBundle(for language: String?) -> Bundle {
         guard let language,
-              let path = Bundle.module.path(forResource: language, ofType: "lproj"),
+              let path = resourceBundle.path(forResource: language, ofType: "lproj"),
               let bundle = Bundle(path: path) else {
-            return .module
+            return resourceBundle
         }
         return bundle
     }
