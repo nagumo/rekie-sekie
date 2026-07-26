@@ -75,7 +75,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         snippetPopover.delegate = self
 
         monitor.start()
-        PasteSimulator.ensureAccessibilityPermission()
 
         KeyboardShortcuts.onKeyUp(for: .togglePopover) { [weak self] in
             self?.togglePopoverAtMouseLocation()

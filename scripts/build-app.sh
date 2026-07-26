@@ -37,6 +37,37 @@ for bundle in "${BUILD_DIR}"/*.bundle; do
   [ -d "$bundle" ] && cp -R "$bundle" "${APP_BUNDLE}/Contents/Resources/"
 done
 
+# --- KeyboardShortcutsのリソースバンドル解決を配布.app向けに補正する ---
+# SwiftPMが生成する Bundle.module アクセサは、リソースバンドルを
+#   1) Bundle.main.bundleURL 直下（=.appルート。コード署名不可なので置けない）
+#   2) ビルドマシンの絶対パス（実機に存在しない）
+# の順でしか探さず、どちらも解決できずショートカット録画UI表示時にfatalErrorで落ちる。
+# 自パッケージ(RekieSekie)はLocalizationManager側でContents/Resourcesを見るよう回避済みだが、
+# 第三者パッケージのアクセサはソースを変更できない。そこで:
+#   - バンドルを Contents/Resources/KS.bundle にリネーム配置（署名可能な正規の場所）
+#   - バイナリ内の参照文字列(独立cstring)を "Contents/Resources/KS.bundle" に差し替え
+# これで Bundle.main.bundleURL + "Contents/Resources/KS.bundle" が解決する（設置場所非依存）。
+KS_SRC="${APP_BUNDLE}/Contents/Resources/KeyboardShortcuts_KeyboardShortcuts.bundle"
+if [ -d "$KS_SRC" ]; then
+  mv "$KS_SRC" "${APP_BUNDLE}/Contents/Resources/KS.bundle"
+  python3 - "${APP_BUNDLE}/Contents/MacOS/${APP_NAME}" <<'PYEOF'
+import sys
+path = sys.argv[1]
+data = bytearray(open(path, "rb").read())
+# 前後がNULの独立cstringだけを対象にする（buildPath内の部分一致は除外）
+old = b"\x00KeyboardShortcuts_KeyboardShortcuts.bundle\x00"
+replacement = b"Contents/Resources/KS.bundle"
+assert len(replacement) <= 42, "置換文字列が元の長さを超えている"
+# 同一バイト長を維持（先頭NUL + 内容 + NUL埋め）してオフセットをずらさない
+new = b"\x00" + replacement + b"\x00" * (42 - len(replacement)) + b"\x00"
+count = data.count(old)
+if count != 1:
+    sys.exit(f"error: KSバンドル参照文字列が想定外の出現数です: {count}")
+open(path, "wb").write(data.replace(old, new))
+print("KeyboardShortcutsのバンドル参照をContents/Resources/KS.bundleへ補正しました")
+PYEOF
+fi
+
 # SparkleのみSPMが動的フレームワーク(@rpath/Sparkle.framework/...)としてリンクするため、
 # Contents/Frameworksに同梱しrpathを追加する。GRDB/KeyboardShortcutsは静的リンクなので対象外。
 mkdir -p "${APP_BUNDLE}/Contents/Frameworks"
