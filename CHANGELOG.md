@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/nagumo/rekie-sekie/compare/v0.0.3...v0.0.4) (2026-07-29)
+
+
+### Features
+
+* keep focused row visible while scrolling popover lists ([bf85a21](https://github.com/nagumo/rekie-sekie/commit/bf85a21fde5348354c55ecb322290873e94a9bdf))
+
 ## [0.0.3](https://github.com/nagumo/rekie-sekie/compare/v0.0.2...v0.0.3) (2026-07-26)
 
 
